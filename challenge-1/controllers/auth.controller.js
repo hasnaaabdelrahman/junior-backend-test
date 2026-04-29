@@ -18,13 +18,13 @@ exports.register = async(req , res) => {
             );
         }
 
-        const hashedPassword = bcrypt.hash(password , 10);
+        const hashedPassword = await bcrypt.hash(password , 10);
         const createdUser = await user.create({
             name,
             email,
             password: hashedPassword
         });
-        res.status(200).json(user);
+        res.status(201).json(createdUser);
 
     }catch(error) {
             res.status(500).json(
@@ -38,30 +38,21 @@ exports.register = async(req , res) => {
 
 exports.login = async(req , res) => {
 
-    const token = jwt.sign(
-        {
-            id: foundUser.id,
-            role: foundUser.role
-        },
-        process.env.JWT_SECRET, {
-            expiresIn:'1d'
-
-        }
-    );
-
     try {
-        const userL = await user.findOne({email});
-        
-        if(!userL) {
-            return res.status(401).json(
-            {
-                message:"Invalid credentials"
-            }
-            );
+        const {email,password} = req.body;
+    
+        const foundUser =
+        await user.findOne({email});
+
+        if(!foundUser){
+        return res.status(401).json({
+            message:"Invalid credentials"
+        });
         }
+
         const isMatch = await bcrypt.compare(
             password,
-            userL.password
+            foundUser.password
         );
 
         if(!isMatch) {
@@ -71,6 +62,18 @@ exports.login = async(req , res) => {
             }
             );
         }
+
+        const token = jwt.sign(
+        {
+        id:foundUser._id,
+        role:foundUser.role
+        },
+        process.env.JWT_SECRET,
+        {
+        expiresIn:'1d'
+        }
+        );
+
         res.json({token})
 
     } catch (error) {
