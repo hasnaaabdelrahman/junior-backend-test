@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-
-const { body, validationResult } = require('express-validator');
+const { body } = require('express-validator');
+const validate = require('../middlewares/validate.middleware');
 
 
 const {
@@ -10,19 +10,6 @@ const {
 } = require('../controllers/auth.controller');
 
 
-const validate = (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({
-            success: false,
-            errors: errors.array().map((err) => ({
-                field: err.path,
-                message: err.msg,
-            })),
-        });
-    }
-    next();
-};
 
 const registerValidation = [
     body('name')
