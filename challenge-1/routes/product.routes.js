@@ -1,5 +1,18 @@
 const express = require('express');
 const router = express.Router();
+const auth = require('../middlewares/auth.middleware');
+const authorize = require('../middlewares/role.middleware');
+
+
+router.get(
+ '/profile',
+ auth,
+ (req,res)=>{
+   res.json({
+      user:req.user
+   });
+ }
+);
 
 const {
     getProducts,
@@ -9,10 +22,14 @@ const {
     deleteProduct,
 } = require('../controllers/product.controller');
 
-router.get('/' , getProducts);
-router.get('/:id' , getProduct);
-router.post('/' , addProduct);
-router.put('/:id' , updatedProduct);
-router.delete('/:id' , deleteProduct);
+
+
+
+
+router.get('/' , auth , getProducts);
+router.get('/:id'  , auth ,  getProduct);
+router.post('/'  , auth ,   authorize('admin'),  addProduct);
+router.put('/:id'  , auth ,   authorize('admin'),  updatedProduct);
+router.delete('/:id'  , auth ,  authorize('admin'),  deleteProduct);
 
 module.exports = router;
