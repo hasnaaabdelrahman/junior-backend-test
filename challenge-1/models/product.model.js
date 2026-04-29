@@ -8,7 +8,7 @@ const productSchema = mongoose.Schema({
         trim: true
 
     },
-    caregory: {
+    category: {
         type: String,
         required: false,
         trim: true
